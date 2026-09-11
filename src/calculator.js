@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Calculate a result using one of the four supported basic operations:
- * addition (+), subtraction (-), multiplication (*), and division (/).
+ * Calculate a result using a supported operation.
  */
 function calculate(firstOperand, operator, secondOperand) {
+  if (operator === "sqrt" || operator === "squareRoot" || operator === "square-root") {
+    return squareRoot(firstOperand);
+  }
+
   if (!Number.isFinite(firstOperand) || !Number.isFinite(secondOperand)) {
     throw new Error("Operands must be valid numbers.");
   }
@@ -25,23 +28,64 @@ function calculate(firstOperand, operator, secondOperand) {
         throw new Error("Cannot divide by zero.");
       }
       return firstOperand / secondOperand;
+    case "%":
+    case "modulo":
+    case "mod":
+      return modulo(firstOperand, secondOperand);
+    case "^":
+    case "power":
+    case "exponentiation":
+      return power(firstOperand, secondOperand);
     default:
       throw new Error(
-        "Unsupported operation. Use add, subtract, multiply, or divide."
+        "Unsupported operation. Use add, subtract, multiply, divide, modulo, power, or squareRoot."
       );
   }
 }
 
+function modulo(a, b) {
+  if (!Number.isFinite(a) || !Number.isFinite(b)) {
+    throw new Error("Operands must be valid numbers.");
+  }
+  if (b === 0) {
+    throw new Error("Cannot divide by zero.");
+  }
+  return a % b;
+}
+
+function power(base, exponent) {
+  if (!Number.isFinite(base) || !Number.isFinite(exponent)) {
+    throw new Error("Operands must be valid numbers.");
+  }
+  return base ** exponent;
+}
+
+function squareRoot(n) {
+  if (!Number.isFinite(n)) {
+    throw new Error("Operand must be a valid number.");
+  }
+  if (n < 0) {
+    throw new Error("Cannot calculate the square root of a negative number.");
+  }
+  return Math.sqrt(n);
+}
+
 function parseArguments(args) {
-  if (args.length !== 3) {
+  const operation = args[1];
+  const isSquareRoot =
+    operation === "sqrt" ||
+    operation === "squareRoot" ||
+    operation === "square-root";
+
+  if ((isSquareRoot && args.length !== 2) || (!isSquareRoot && args.length !== 3)) {
     throw new Error(
-      "Usage: node src/calculator.js <number> <operation> <number>"
+      "Usage: node src/calculator.js <number> <operation> [number]"
     );
   }
 
-  const [firstValue, operation, secondValue] = args;
+  const [firstValue, , secondValue] = args;
   const firstOperand = Number(firstValue);
-  const secondOperand = Number(secondValue);
+  const secondOperand = secondValue === undefined ? undefined : Number(secondValue);
 
   return { firstOperand, operation, secondOperand };
 }
@@ -58,4 +102,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { calculate, parseArguments };
+module.exports = { calculate, modulo, power, squareRoot, parseArguments };
